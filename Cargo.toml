@@ -1,0 +1,19 @@
+[package]
+name = "comment-parser"
+version = "0.1.0"
+authors = ["Christian Vallentin"]
+edition = "2018"
+description = "Extract comments from code"
+keywords = ["parser", "parsing", "comment", "comments"]
+categories = ["parsing", "parser-implementations", "text-processing"]
+license = "MIT"
+repository = "https://github.com/vallentin/comment-parser"
+documentation = "https://docs.rs/comment-parser"
+readme = "README.md"
+exclude = [".travis.yml"]
+
+[badges]
+travis-ci = { repository = "vallentin/comment-parser" }
+
+[dependencies]
+line-span = "0.1"
