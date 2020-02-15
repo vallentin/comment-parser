@@ -1,3 +1,4 @@
+use std::fmt;
 use std::iter::FusedIterator;
 use std::ops::Range;
 
@@ -5,7 +6,7 @@ use line_span::{find_line_range, find_next_line_start};
 
 use crate::syntax::SyntaxRule;
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub enum Event<'a> {
     /// `LineComment(raw, text)`
     LineComment(&'a str, &'a str),
@@ -28,6 +29,15 @@ impl<'a> Event<'a> {
         match self {
             LineComment(raw, _) | BlockComment(raw, _) => raw,
         }
+    }
+}
+
+impl<'a> fmt::Debug for Event<'a> {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        fmt.debug_tuple("Event")
+            .field(&format_args!("_"))
+            .field(&self.text())
+            .finish()
     }
 }
 
