@@ -13,5 +13,5 @@ mod parse;
 mod syntax;
 
 pub use languages::get_syntax;
-pub use parse::CommentParser;
+pub use parse::{CommentParser, Event};
 pub use syntax::SyntaxRule;

@@ -6,25 +6,45 @@ use line_span::{find_line_range, find_next_line_start};
 use crate::syntax::SyntaxRule;
 
 #[derive(Clone, Debug)]
-pub enum Token<'a> {
-    LineComment(&'a str),
-    BlockComment(&'a str),
+pub enum Event<'a> {
+    /// `LineComment(raw, text)`
+    LineComment(&'a str, &'a str),
+    /// `BlockComment(raw, text)`
+    BlockComment(&'a str, &'a str),
+}
+
+impl<'a> Event<'a> {
+    #[inline]
+    pub fn text(&self) -> &str {
+        use Event::*;
+        match self {
+            LineComment(_, text) | BlockComment(_, text) => text,
+        }
+    }
+
+    #[inline]
+    pub fn raw(&self) -> &str {
+        use Event::*;
+        match self {
+            LineComment(raw, _) | BlockComment(raw, _) => raw,
+        }
+    }
 }
 
 #[derive(Clone, Debug)]
-enum RawToken<'a> {
-    LineComment(&'a str),
-    BlockComment(&'a str),
-    String(&'a str),
+enum RawEvent<'a> {
+    LineComment(&'a str, &'a str),
+    BlockComment(&'a str, &'a str),
+    String(&'a str, &'a str),
 }
 
-impl<'a> RawToken<'a> {
+impl<'a> RawEvent<'a> {
     #[inline]
-    fn into_token(self) -> Option<Token<'a>> {
-        use RawToken::*;
+    fn into_token(self) -> Option<Event<'a>> {
+        use RawEvent::*;
         match self {
-            LineComment(text) => Some(Token::LineComment(text)),
-            BlockComment(text) => Some(Token::BlockComment(text)),
+            LineComment(raw, text) => Some(Event::LineComment(raw, text)),
+            BlockComment(raw, text) => Some(Event::BlockComment(raw, text)),
             String(..) => None,
         }
     }
@@ -56,7 +76,7 @@ impl<'a> CommentParser<'a> {
         }
     }
 
-    fn next_token(&mut self) -> Option<RawToken<'a>> {
+    fn next_token(&mut self) -> Option<RawEvent<'a>> {
         let bytes = self.text.as_bytes();
 
         let rule = bytes[self.index..]
@@ -83,18 +103,19 @@ impl<'a> CommentParser<'a> {
         }
     }
 
-    fn parse_line_comment(&mut self, start: usize, rule: &SyntaxRule) -> RawToken<'a> {
+    fn parse_line_comment(&mut self, start: usize, rule: &SyntaxRule) -> RawEvent<'a> {
         let Range { start, end } = find_line_range(self.text, start);
         let after_start = start + rule.start().len();
 
         self.index = find_next_line_start(self.text, end).unwrap_or_else(|| self.text.len());
 
+        let line = &self.text[start..end];
         let comment = &self.text[after_start..end];
 
-        RawToken::LineComment(comment)
+        RawEvent::LineComment(line, comment)
     }
 
-    fn parse_block_comment(&mut self, start: usize, rule: &SyntaxRule) -> RawToken<'a> {
+    fn parse_block_comment(&mut self, start: usize, rule: &SyntaxRule) -> RawEvent<'a> {
         let after_start = start + rule.start().len();
 
         let rule_end = rule.end();
@@ -113,12 +134,13 @@ impl<'a> CommentParser<'a> {
 
         self.index = end;
 
+        let lines = &self.text[start..end];
         let comment = &self.text[after_start..before_end];
 
-        RawToken::BlockComment(comment)
+        RawEvent::BlockComment(lines, comment)
     }
 
-    fn parse_string(&mut self, start: usize, rule: &SyntaxRule) -> RawToken<'a> {
+    fn parse_string(&mut self, start: usize, rule: &SyntaxRule) -> RawEvent<'a> {
         let after_start = start + rule.start().len();
         let rule_end = rule.start();
 
@@ -149,14 +171,15 @@ impl<'a> CommentParser<'a> {
 
         self.index = end;
 
+        let lines = &self.text[start..end];
         let string = &self.text[after_start..before_end];
 
-        RawToken::String(string)
+        RawEvent::String(lines, string)
     }
 }
 
 impl<'a> Iterator for CommentParser<'a> {
-    type Item = Token<'a>;
+    type Item = Event<'a>;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.index == self.text.len() {
