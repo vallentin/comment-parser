@@ -98,7 +98,7 @@ enum RawEvent<'a> {
 
 impl<'a> RawEvent<'a> {
     #[inline]
-    fn into_token(self) -> Option<Event<'a>> {
+    fn into_event(self) -> Option<Event<'a>> {
         use RawEvent::*;
         match self {
             LineComment(raw, text) => Some(Event::LineComment(raw, text)),
@@ -134,7 +134,7 @@ impl<'a> CommentParser<'a> {
         }
     }
 
-    fn next_token(&mut self) -> Option<RawEvent<'a>> {
+    fn next_event(&mut self) -> Option<RawEvent<'a>> {
         let bytes = self.text.as_bytes();
 
         let rule = bytes[self.index..]
@@ -244,10 +244,10 @@ impl<'a> Iterator for CommentParser<'a> {
             return None;
         }
 
-        while let Some(token) = self.next_token() {
-            let token = token.into_token();
-            if token.is_some() {
-                return token;
+        while let Some(event) = self.next_event() {
+            let event = event.into_event();
+            if event.is_some() {
+                return event;
             }
         }
 
