@@ -6,7 +6,43 @@ use line_span::{find_line_range, find_next_line_start};
 
 use crate::syntax::SyntaxRule;
 
-#[derive(Clone)]
+/// Events contain [`raw`] and [`text`].
+///
+/// Text is the contents of the comment, while raw includes additional
+/// characters based on the type of comment, such as the comment
+/// delimiters or "start and end symbols" of the comment.
+///
+/// - `LineComment`'s `raw` includes the whole line.
+/// - `BlockComment`'s `raw` includes only the block comment delimiters.
+///
+/// *The above is only true, for events parsed by [`CommentParser`].*
+///
+/// [`text`]: enum.Event.html#method.text
+/// [`raw`]: enum.Event.html#method.raw
+/// [`CommentParser`]: struct.CommentParser.html
+///
+/// # Example
+///
+/// ```rust
+/// # use comment_parser::Event;
+/// let line = Event::LineComment("  // Foo Bar", " Foo Bar");
+/// assert_eq!(line.text(), " Foo Bar");
+/// assert_eq!(line.raw(),  "  // Foo Bar");
+///
+/// let block = Event::BlockComment("/* Foo\n  Bar */", " Foo\n  Bar ");
+/// assert_eq!(block.text(), " Foo\n  Bar ");
+/// assert_eq!(block.raw(),  "/* Foo\n  Bar */");
+///
+/// # use comment_parser::{get_syntax, CommentParser};
+/// #
+/// # let code = "  \n  // Foo Bar\r\n foo /* Foo\n  Bar */ foo\n";
+/// #
+/// # let mut parser = CommentParser::new(code, get_syntax("rust").unwrap());
+/// # assert_eq!(parser.next(), Some(line));
+/// # assert_eq!(parser.next(), Some(block));
+/// # assert_eq!(parser.next(), None);
+/// ```
+#[derive(PartialEq, Clone)]
 pub enum Event<'a> {
     /// `LineComment(raw, text)`
     LineComment(&'a str, &'a str),
@@ -15,14 +51,7 @@ pub enum Event<'a> {
 }
 
 impl<'a> Event<'a> {
-    #[inline]
-    pub fn text(&self) -> &str {
-        use Event::*;
-        match self {
-            LineComment(_, text) | BlockComment(_, text) => text,
-        }
-    }
-
+    /// Returns the raw part of an `Event`.
     #[inline]
     pub fn raw(&self) -> &str {
         use Event::*;
@@ -30,9 +59,23 @@ impl<'a> Event<'a> {
             LineComment(raw, _) | BlockComment(raw, _) => raw,
         }
     }
+
+    /// Returns the text part of an `Event`.
+    #[inline]
+    pub fn text(&self) -> &str {
+        use Event::*;
+        match self {
+            LineComment(_, text) | BlockComment(_, text) => text,
+        }
+    }
 }
 
 impl<'a> fmt::Debug for Event<'a> {
+    /// Renders [`raw`] as `_` as both [`raw`] and
+    /// [`text`] are similar.
+    ///
+    /// [`text`]: enum.Event.html#method.text
+    /// [`raw`]: enum.Event.html#method.raw
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         use Event::*;
         let name = match self {
