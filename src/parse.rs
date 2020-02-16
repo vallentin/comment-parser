@@ -34,7 +34,12 @@ impl<'a> Event<'a> {
 
 impl<'a> fmt::Debug for Event<'a> {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        fmt.debug_tuple("Event")
+        use Event::*;
+        let name = match self {
+            LineComment(..) => "LineComment",
+            BlockComment(..) => "BlockComment",
+        };
+        fmt.debug_tuple(name)
             .field(&format_args!("_"))
             .field(&self.text())
             .finish()
