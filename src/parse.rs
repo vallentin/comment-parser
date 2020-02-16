@@ -114,8 +114,8 @@ impl<'a> CommentParser<'a> {
     }
 
     fn parse_line_comment(&mut self, start: usize, rule: &SyntaxRule) -> RawEvent<'a> {
-        let Range { start, end } = find_line_range(self.text, start);
         let after_start = start + rule.start().len();
+        let Range { start, end } = find_line_range(self.text, start);
 
         self.index = find_next_line_start(self.text, end).unwrap_or_else(|| self.text.len());
 
