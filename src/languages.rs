@@ -15,8 +15,9 @@ const PYTHON: [SyntaxRule; 4] = [
     String(b"'"),
 ];
 
-const RUST: [SyntaxRule; 4] = [
+const RUST: [SyntaxRule; 5] = [
     LineComment(b"//!"),
+    LineComment(b"///"),
     LineComment(b"//"),
     BlockComment(b"/*", b"*/"),
     String(b"\""),
