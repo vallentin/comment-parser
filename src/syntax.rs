@@ -61,8 +61,11 @@ use std::str::from_utf8;
 /// [languages.rs]: https://github.com/vallentin/comment-parser/blob/master/src/languages.rs
 #[derive(Clone)]
 pub enum SyntaxRule<'a> {
+    /// `LineComment(start)`
     LineComment(&'a [u8]),
+    /// `BlockComment(start, end)`
     BlockComment(&'a [u8], &'a [u8]),
+    /// `String(delimiter)`
     String(&'a [u8]),
 }
 

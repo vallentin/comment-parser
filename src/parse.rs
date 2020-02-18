@@ -108,6 +108,11 @@ impl<'a> RawEvent<'a> {
     }
 }
 
+/// `CommentParser` parses `text` and produces [`Event`]s.
+///
+/// [`Event`]: enum.Event.html
+#[allow(missing_debug_implementations)]
+#[derive(Clone)]
 pub struct CommentParser<'a> {
     text: &'a str,
     index: usize,
@@ -116,6 +121,9 @@ pub struct CommentParser<'a> {
 }
 
 impl<'a> CommentParser<'a> {
+    /// Creates a `CommentParser` which parses `text` based on
+    /// `rules` and produces [`Event`]s.
+    ///
     /// # Panics
     ///
     /// Note that `CommentParser` panics immediately upon calling `new`,
