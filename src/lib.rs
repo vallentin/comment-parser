@@ -12,6 +12,6 @@ mod languages;
 mod parse;
 mod syntax;
 
-pub use languages::get_syntax;
+pub use languages::{get_syntax, get_syntax_from_extension, get_syntax_from_path, LanguageError};
 pub use parse::{CommentParser, Event};
 pub use syntax::SyntaxRule;

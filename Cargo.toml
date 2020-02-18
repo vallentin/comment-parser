@@ -16,4 +16,5 @@ exclude = [".travis.yml"]
 travis-ci = { repository = "vallentin/comment-parser" }
 
 [dependencies]
+detect-lang = "0.1"
 line-span = "0.1"

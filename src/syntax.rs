@@ -50,13 +50,15 @@ use std::str::from_utf8;
 ///
 /// [CommentParser::new]: struct.CommentParser.html#method.new
 ///
+/// # Unsupported Language
+///
 /// If you implement syntax rules for an unsupported language, then feel free to submit
 /// your `rules` on the [issue tracker], or add it to [languages.rs] and submit
 /// a [pull request].
 ///
 /// [issue tracker]: https://github.com/vallentin/comment-parser/issues
 /// [pull request]: https://github.com/vallentin/comment-parser/pulls
-/// [languages.rs]: ../src/comment_parser/languages.rs.html
+/// [languages.rs]: https://github.com/vallentin/comment-parser/blob/master/src/languages.rs
 #[derive(Clone)]
 pub enum SyntaxRule<'a> {
     LineComment(&'a [u8]),
