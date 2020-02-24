@@ -321,3 +321,96 @@ impl<'a> SyntaxRule<'a> {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{CommentParser, Event};
+    use crate::get_syntax;
+
+    #[test]
+    fn lib_example_rust() {
+        use Event::*;
+        #[rustfmt::skip]
+        let comments = vec![
+            BlockComment(
+                "/* This is\nthe main\nfunction */",
+                " This is\nthe main\nfunction ",
+            ),
+            LineComment(
+                "    // println! is a macro",
+                " println! is a macro",
+            ),
+            LineComment(
+                "    println!(\"Hello World\"); // Prints \"Hello World\"",
+                " Prints \"Hello World\"",
+            ),
+        ];
+
+        // If this example is changed, then update both the
+        // code and the output in lib.rs and README.md.
+
+        let rust = r#"
+/* This is
+the main
+function */
+fn main() {
+    // println! is a macro
+    println!("Hello World"); // Prints "Hello World"
+}
+"#;
+
+        let rules = get_syntax("rust").unwrap();
+
+        let mut parser = CommentParser::new(rust, rules);
+
+        for expected in comments.into_iter() {
+            let actual = parser.next();
+
+            assert_eq!(Some(expected), actual);
+        }
+
+        assert_eq!(None, parser.next());
+    }
+
+    #[test]
+    fn lib_example_python() {
+        use Event::*;
+        #[rustfmt::skip]
+        let comments = vec![
+            LineComment(
+                "# In Python main is not a function",
+                " In Python main is not a function",
+            ),
+            LineComment(
+                "    # print is a function",
+                " print is a function",
+            ),
+            LineComment(
+                "    print(\"Hello World\")  # Prints \"Hello World\"",
+                " Prints \"Hello World\"",
+            ),
+        ];
+
+        // If this example is changed, then update both the
+        // code and the output in lib.rs and README.md.
+
+        let python = r#"
+# In Python main is not a function
+if __name__ == "__main__":
+    # print is a function
+    print("Hello World")  # Prints "Hello World"
+"#;
+
+        let rules = get_syntax("python").unwrap();
+
+        let mut parser = CommentParser::new(python, rules);
+
+        for expected in comments.into_iter() {
+            let actual = parser.next();
+
+            assert_eq!(Some(expected), actual);
+        }
+
+        assert_eq!(None, parser.next());
+    }
+}
