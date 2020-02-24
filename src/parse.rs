@@ -331,7 +331,7 @@ mod tests {
     fn lib_example_rust() {
         use Event::*;
         #[rustfmt::skip]
-        let comments = vec![
+        let comments = [
             BlockComment(
                 "/* This is\nthe main\nfunction */",
                 " This is\nthe main\nfunction ",
@@ -363,10 +363,10 @@ fn main() {
 
         let mut parser = CommentParser::new(rust, rules);
 
-        for expected in comments.into_iter() {
+        for expected in comments.iter() {
             let actual = parser.next();
 
-            assert_eq!(Some(expected), actual);
+            assert_eq!(Some(expected.clone()), actual);
         }
 
         assert_eq!(None, parser.next());
@@ -376,7 +376,7 @@ fn main() {
     fn lib_example_python() {
         use Event::*;
         #[rustfmt::skip]
-        let comments = vec![
+        let comments = [
             LineComment(
                 "# In Python main is not a function",
                 " In Python main is not a function",
@@ -405,10 +405,10 @@ if __name__ == "__main__":
 
         let mut parser = CommentParser::new(python, rules);
 
-        for expected in comments.into_iter() {
+        for expected in comments.iter() {
             let actual = parser.next();
 
-            assert_eq!(Some(expected), actual);
+            assert_eq!(Some(expected.clone()), actual);
         }
 
         assert_eq!(None, parser.next());
