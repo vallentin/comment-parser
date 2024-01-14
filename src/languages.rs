@@ -48,7 +48,7 @@ const SYNTAXES: [(&str, &[SyntaxRule]); 15] = [
     ("shell", &SHELL),
     ("toml", &C),
     ("typescript", &C),
-    ("yaml", &C),
+    ("yaml", &SHELL),
 ];
 
 /// Given a language name, get [syntax rules] for a predefined
